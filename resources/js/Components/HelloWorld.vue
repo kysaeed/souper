@@ -31,7 +31,7 @@ export default {
 }
 </script>
 
-<style land="scss" scoped>
+<style lang="scss" scoped>
 .hello-box {
     position: relative;
     margin: 20px;
