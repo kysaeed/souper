@@ -26,7 +26,9 @@
 
         {{-- ***** Vue ***** --}}
         <div id="app">
-            <hello-world>
+            <hello-world
+                :start-count="100"
+            >
                 Loading...
             </hello-world>
         </div>

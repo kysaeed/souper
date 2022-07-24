@@ -12,7 +12,12 @@
 <script>
 export default {
     name: 'hello-world',
-
+    props: {
+        startCount: {
+            type: Number,
+            default: 0,
+        },
+    },
     methods: {
         add() {
             this.a++
@@ -20,7 +25,7 @@ export default {
     },
     data() {
         return {
-            a: 0,
+            a: this.startCount,
         }
     },
 }
