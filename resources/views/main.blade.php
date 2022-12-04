@@ -21,7 +21,7 @@
         <nav class="navbar navbar-light bg-light">
             <div class="container-fluid">
                 <div>
-                    <img src="/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="30" height="24">
+                    {{-- <img src="/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="30" height="24"> --}}
                     <span class="navbar-brand mb-0 h1">Souper</span>
                 </div>
             </div>
