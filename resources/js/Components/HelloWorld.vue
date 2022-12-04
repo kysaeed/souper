@@ -176,6 +176,7 @@ export default {
     onCompleteModalClose() {
         this.completeModal.hide()
 
+        this.kgTotal = Math.floor(Math.random() * max) + 1;
         this.recipe = this.createRecipe(this.fishInfo)
         this.$refs.mixWorker.clear()
 
