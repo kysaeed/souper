@@ -3,7 +3,13 @@
     <div class="row mt-5">
       <div class="col">
         <div class="card">
-          <div class="card-header">注文</div>
+          <div class="card-header card-header-title">
+            注文
+            <div class="form-check form-switch ui-rate-option">
+                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" v-model="isDecimailPointEnable">
+                <label class="form-check-label" for="flexSwitchCheckDefault">少数点</label>
+            </div>
+        </div>
           <div class="card-body main-bg">
             <h5 class="card-title main-title">
               ■ {{ kgTotal }}kg作ってください
@@ -107,8 +113,13 @@ export default {
     RateSheet,
     MixWorker,
   },
+  watch: {
+    isDecimailPointEnable(value) {
+        const dp = value ? '1': '0'
+        history.replaceState(null, null, `?dp=${dp}`)
+    },
+  },
   mounted() {
-
     this.completeModal = new bootstrap.Modal(this.$refs.modalComplete, {
         backdrop: "static",
     });
@@ -118,26 +129,54 @@ export default {
 
   },
   methods: {
-    createRecipe(fishInfo) {
+    createRecipe(fishInfo, isDecimailPointEnable) {
+      const pointList = [3, 5, 7,]
       const recipe = [];
-      const typeCount = Math.floor(Math.random() * fishInfo.length) + 1;
-      const list = _.shuffle(fishInfo.map((e, i) => i));
+      const typeCount = Math.floor(Math.random() * fishInfo.length) + 1
+      const list = _.shuffle(fishInfo.map((e, i) => i))
 
-      let rates = [];
-      let remine = 10;
+      let rates = []
+      let remine = 100
+      let prevDecimalPoint = 0
       for (let i = 0; i < typeCount - 1; i++) {
-        const r = Math.floor(Math.random() * (remine - (typeCount - i))) + 1;
+        let r = 0
+        if (prevDecimalPoint) {
+            r = 10 - prevDecimalPoint
+            if (remine > 20) {
+                r += Math.floor(Math.random() * 2) * 10
+            }
+            prevDecimalPoint = 0
+
+        } else {
+            r = (Math.floor(Math.random() * ((remine / 10) - (typeCount - i)))) * 10
+            if (!isDecimailPointEnable) {
+                r += 10
+            } else {
+                if (r <= 10) {
+                    if (!Math.floor(Math.random() * 3)) {
+                        prevDecimalPoint = _.sample(pointList)
+                        r += prevDecimalPoint
+                    } else {
+                        r += 10
+                    }
+                } else {
+                    r += 10
+                }
+            }
+        }
+
         rates.push(r);
         remine -= r;
       }
-      rates.push(remine);
-      rates = _.shuffle(rates);
+
+
+      rates.push(remine)
+      rates = _.shuffle(rates)
 
       for (let i = 0; i < typeCount; i++) {
-        const rate = Math.floor(Math.random() * 10) + 1;
         recipe.push({
           fish: list[i],
-          rate: rates[i],
+          rate: rates[i] / 10,
         });
       }
       return recipe;
@@ -165,10 +204,10 @@ export default {
       return isValidMix && recipe.length === 0;
     },
     onMixInput(mix) {
-      const isValid = this.isValidMix(mix);
+      const isValid = this.isValidMix(mix)
 
       if (isValid) {
-        this.completeModal.show();
+        this.completeModal.show()
       } else {
         this.ngModal.show()
       }
@@ -176,8 +215,8 @@ export default {
     onCompleteModalClose() {
         this.completeModal.hide()
 
-        this.kgTotal = Math.floor(Math.random() * 10) + 1;
-        this.recipe = this.createRecipe(this.fishInfo)
+        this.kgTotal = Math.floor(Math.random() * 10) + 1
+        this.recipe = this.createRecipe(this.fishInfo, this.isDecimailPointEnable)
         this.$refs.mixWorker.clear()
 
     },
@@ -196,13 +235,21 @@ export default {
 
     const max = 10;
     const kgTotal = Math.floor(Math.random() * max) + 1;
+    let isDecimailPointEnable = true
 
-    const recipe = this.createRecipe(fishInfo);
+    const params = new URLSearchParams(window.location.search)
+    if (params.has('dp')) {
+        const dp = parseInt(params.get('dp')) ?? 0
+        isDecimailPointEnable = !!(dp)
+    }
+
+    const recipe = this.createRecipe(fishInfo, isDecimailPointEnable);
 
     return {
       kgTotal,
       recipe,
       fishInfo,
+      isDecimailPointEnable,
     };
   },
 };
@@ -214,5 +261,15 @@ export default {
 }
 .main-title {
   // color: #ffffff;
+}
+.card-header-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ui-rate-option {
+    font-size: 0.8em;
+    margin: 1px 20px;
 }
 </style>
